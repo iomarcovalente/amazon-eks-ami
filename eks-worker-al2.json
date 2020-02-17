@@ -9,6 +9,7 @@
     "aws_access_key_id": "{{env `AWS_ACCESS_KEY_ID`}}",
     "aws_secret_access_key": "{{env `AWS_SECRET_ACCESS_KEY`}}",
     "aws_session_token": "{{env `AWS_SESSION_TOKEN`}}",
+    "ami_users": "{{env `AWS_AMI_USERS`}}",
 
     "binary_bucket_name": "amazon-eks",
     "binary_bucket_region": "us-west-2",
@@ -93,7 +94,7 @@
       "ami_name": "{{user `ami_name`}}",
       "ami_description": "{{ user `ami_description` }}, (k8s: {{ user `kubernetes_version`}}, docker:{{ user `docker_version`}})",
       "ami_regions": "us-east-2",
-      "ami_users": ["767852125684","733201215448"]
+      "ami_users": "{{ user `ami_users`}}"
     }
   ],
 
