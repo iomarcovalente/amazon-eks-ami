@@ -1,12 +1,16 @@
 PACKER_BINARY ?= packer
-PACKER_VARIABLES := aws_region ami_name binary_bucket_name binary_bucket_region kubernetes_version kubernetes_build_date docker_version cni_version cni_plugin_version source_ami_id source_ami_owners arch instance_type additional_yum_repos
+PACKER_VARIABLES := aws_region ami_name binary_bucket_name binary_bucket_region kubernetes_version kubernetes_build_date docker_version cni_version cni_plugin_version source_ami_id source_ami_owners arch instance_type additional_yum_repos vpc_id subnet_id
 
 K8S_VERSION_PARTS := $(subst ., ,$(kubernetes_version))
 K8S_VERSION_MINOR := $(word 1,${K8S_VERSION_PARTS}).$(word 2,${K8S_VERSION_PARTS})
 
 aws_region ?= $(AWS_DEFAULT_REGION)
 binary_bucket_region ?= $(AWS_DEFAULT_REGION)
-ami_name ?= amazon-eks-node-$(K8S_VERSION_MINOR)-v$(shell date +'%Y%m%d')
+ami_name ?= amazon-eks-node-$(K8S_VERSION_MINOR)-v$(shell date +'%Y%m%d%H%M')
+
+vpc_id ?= $(AWS_DEFAULT_VPC)
+subnet_id ?= $(AWS_DEFAULT_SUBNET)
+
 arch ?= x86_64
 ifeq ($(arch), arm64)
 instance_type ?= a1.large
@@ -22,9 +26,6 @@ T_RED := \e[0;31m
 T_GREEN := \e[0;32m
 T_YELLOW := \e[0;33m
 T_RESET := \e[0m
-
-.PHONY: all
-all: 1.11 1.12 1.13 1.14
 
 .PHONY: validate
 validate:

@@ -5,7 +5,7 @@
     "creator": "{{env `USER`}}",
     "encrypted": "false",
     "kms_key_id": "",
-    
+
     "aws_access_key_id": "{{env `AWS_ACCESS_KEY_ID`}}",
     "aws_secret_access_key": "{{env `AWS_SECRET_ACCESS_KEY`}}",
     "aws_session_token": "{{env `AWS_SESSION_TOKEN`}}",
@@ -27,10 +27,11 @@
 
     "ssh_interface": "",
     "ssh_username": "ec2-user",
-    "temporary_security_group_source_cidrs": "",
-    "associate_public_ip_address": "",
-    "subnet_id": "",
-
+    "temporary_security_group_source_cidrs": "10.0.0.0/8",
+    "associate_public_ip_address": "false",
+    "subnet_id": "{{env `AWS_DEFAULT_SUBNET`}}",
+    "vpc_id": "{{env `AWS_DEFAULT_VPC`}}",
+    "spot_price": "auto",
     "additional_yum_repos": ""
   },
 
@@ -59,7 +60,7 @@
           "delete_on_termination": true
         }
       ],
-      "ami_block_device_mappings": [    
+      "ami_block_device_mappings": [
         {
           "device_name": "/dev/xvda",
           "volume_type": "gp2",
@@ -78,6 +79,8 @@
           "creator": "{{user `creator`}}"
       },
       "subnet_id": "{{user `subnet_id`}}",
+      "spot_price": "{{user `spot_price`}}",
+      "vpc_id": "{{user `vpc_id`}}",
       "tags": {
           "Name": "{{user `ami_name`}}",
           "created": "{{timestamp}}",
@@ -88,7 +91,9 @@
           "cni_plugin_version": "{{ user `cni_plugin_version`}}"
       },
       "ami_name": "{{user `ami_name`}}",
-      "ami_description": "{{ user `ami_description` }}, (k8s: {{ user `kubernetes_version`}}, docker:{{ user `docker_version`}})"
+      "ami_description": "{{ user `ami_description` }}, (k8s: {{ user `kubernetes_version`}}, docker:{{ user `docker_version`}})",
+      "ami_regions": "us-east-2",
+      "ami_users": ["767852125684","733201215448"]
     }
   ],
 
