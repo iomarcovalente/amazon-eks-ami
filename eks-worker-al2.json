@@ -29,6 +29,7 @@
     "ssh_interface": "",
     "ssh_username": "ec2-user",
     "security_group_id": "{{env `AWS_PACKER_SECURITY_GROUP_ID`}}",
+    "temporary_security_group_source_cidrs": "10.0.0.0/8",
     "associate_public_ip_address": "false",
     "subnet_id": "{{env `AWS_DEFAULT_SUBNET`}}",
     "vpc_id": "{{env `AWS_DEFAULT_VPC`}}",
