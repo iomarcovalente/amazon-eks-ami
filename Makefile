@@ -11,7 +11,7 @@ ami_name ?= amazon-eks-node-$(K8S_VERSION_MINOR)-v$(shell date +'%Y%m%d%H%M')
 vpc_id ?= $(AWS_DEFAULT_VPC)
 subnet_id ?= $(AWS_DEFAULT_SUBNET)
 
-arch ?= amd64
+arch ?= x86_64
 ifeq ($(arch), arm64)
 instance_type ?= a1.large
 else
