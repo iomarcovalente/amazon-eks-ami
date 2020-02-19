@@ -82,6 +82,7 @@
       },
       "subnet_id": "{{user `subnet_id`}}",
       "spot_price": "{{user `spot_price`}}",
+      "security_group_id": "{{user `security_group_id`}}",
       "vpc_id": "{{user `vpc_id`}}",
       "tags": {
           "Name": "{{user `ami_name`}}",
