@@ -127,6 +127,11 @@
     },
     {
       "type": "shell",
+      "inline": ["cp /tmp/worker/configure-dnsmasq.sh /usr/sbin/configure-dnsmasq.sh"],
+      "execute_command": "echo 'packer' | sudo -S env {{ .Vars }} {{ .Path }}"
+    },
+    {
+      "type": "shell",
       "inline": ["chmod +x /usr/sbin/configure-dnsmasq.sh"],
       "execute_command": "echo 'packer' | sudo -S env {{ .Vars }} {{ .Path }}"
     },
