@@ -113,6 +113,11 @@
       "destination": "/tmp/worker/"
     },
     {
+      "type": "shell",
+      "inline": ["chmod +x /usr/sbin/configure-dnsmasq.sh"],
+      "execute_command": "echo 'packer' | sudo -S env {{ .Vars }} {{ .Path }}"
+    },
+    {
         "type": "shell",
         "remote_folder": "{{ user `remote_folder`}}",
         "script": "{{template_dir}}/scripts/install_additional_repos.sh",

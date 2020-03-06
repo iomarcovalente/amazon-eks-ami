@@ -126,6 +126,11 @@
       "execute_command": "echo 'packer' | sudo -S env {{ .Vars }} {{ .Path }}"
     },
     {
+      "type": "shell",
+      "inline": ["chmod +x /usr/sbin/configure-dnsmasq.sh"],
+      "execute_command": "echo 'packer' | sudo -S env {{ .Vars }} {{ .Path }}"
+    },
+    {
         "type": "shell",
         "script": "{{template_dir}}/scripts/install_additional_repos.sh",
         "environment_vars": [
