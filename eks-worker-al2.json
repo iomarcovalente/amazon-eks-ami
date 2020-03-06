@@ -35,7 +35,7 @@
     "vpc_id": "{{env `AWS_DEFAULT_VPC`}}",
     "spot_price": "auto",
     "remote_folder": "",
-    "launch_block_device_mappings_volume_size": 4,
+    "launch_block_device_mappings_volume_size": "4",
     "additional_yum_repos": ""
   },
 
