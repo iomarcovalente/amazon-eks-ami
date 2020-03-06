@@ -36,7 +36,8 @@
     "spot_price": "auto",
     "remote_folder": "",
     "launch_block_device_mappings_volume_size": "4",
-    "additional_yum_repos": ""
+    "additional_yum_repos": "",
+    "dnsmasq_cache_ttl": "7200"
   },
 
   "builders": [
@@ -116,21 +117,19 @@
     },
     {
       "type": "shell",
-      "inline": ["cp /tmp/worker/configure-dnsmasq.sh /usr/sbin/configure-dnsmasq.sh"],
-      "execute_command": "echo 'packer' | sudo -S env {{ .Vars }} {{ .Path }}"
+      "remote_folder": "{{ user `remote_folder`}}",
+      "script": "{{template_dir}}/scripts/install-dnsmasq.sh",
+      "environment_vars": [
+        "DNSMASQ_CACHE_TTL={{user `dnsmasq_cache_ttl`}}"
+      ]
     },
     {
       "type": "shell",
-      "inline": ["chmod +x /usr/sbin/configure-dnsmasq.sh"],
-      "execute_command": "echo 'packer' | sudo -S env {{ .Vars }} {{ .Path }}"
-    },
-    {
-        "type": "shell",
-        "remote_folder": "{{ user `remote_folder`}}",
-        "script": "{{template_dir}}/scripts/install_additional_repos.sh",
-        "environment_vars": [
-          "ADDITIONAL_YUM_REPOS={{user `additional_yum_repos`}}"
-        ]
+      "remote_folder": "{{ user `remote_folder`}}",
+      "script": "{{template_dir}}/scripts/install_additional_repos.sh",
+      "environment_vars": [
+        "ADDITIONAL_YUM_REPOS={{user `additional_yum_repos`}}"
+      ]
     },
     {
       "type": "shell",

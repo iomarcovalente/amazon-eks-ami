@@ -19,7 +19,7 @@ pid-file=/var/run/dnsmasq.pid
 resolv-file=/etc/resolv.dnsmasq
 cache-size=500
 neg-ttl=60
-min-cache-ttl=7200
+min-cache-ttl=${DNSMASQ_CACHE_TTL}
 domain-needed
 bogus-priv
 EOF
