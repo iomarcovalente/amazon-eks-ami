@@ -23,7 +23,6 @@ min-cache-ttl=${DNSMASQ_CACHE_TTL}
 domain-needed
 bogus-priv
 EOF
-export DNSSERVER=$(cat /etc/resolv.conf |grep -i '^nameserver'|head -n1|cut -d ' ' -f2)
 echo "nameserver 169.254.169.253" > /etc/resolv.dnsmasq
 systemctl restart dnsmasq.service
 systemctl enable dnsmasq.service
