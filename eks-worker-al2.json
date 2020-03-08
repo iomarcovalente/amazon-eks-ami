@@ -119,6 +119,7 @@
       "type": "shell",
       "remote_folder": "{{ user `remote_folder`}}",
       "script": "{{template_dir}}/scripts/install-dnsmasq.sh",
+      "execute_command": "echo 'packer' | sudo -S env {{ .Vars }} {{ .Path }}",
       "environment_vars": [
         "DNSMASQ_CACHE_TTL={{user `dnsmasq_cache_ttl`}}"
       ]
