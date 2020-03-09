@@ -34,7 +34,7 @@ T_RESET := \e[0m
 .PHONY: validate
 validate:
 ifeq ($(NAT_BUILD),ON)
-	$(PACKER_BINARY) validate NAT-build $(foreach packerVar,$(PACKER_VARIABLES), $(if $($(packerVar)),--var $(packerVar)='$($(packerVar))',)) eks-worker-al2-nat.json
+	$(PACKER_BINARY) validate $(foreach packerVar,$(PACKER_VARIABLES), $(if $($(packerVar)),--var $(packerVar)='$($(packerVar))',)) eks-worker-al2-nat.json
 else
 	$(PACKER_BINARY) validate $(foreach packerVar,$(PACKER_VARIABLES), $(if $($(packerVar)),--var $(packerVar)='$($(packerVar))',)) eks-worker-al2.json
 endif
