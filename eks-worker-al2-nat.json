@@ -85,7 +85,7 @@
       "security_group_id": "{{user `security_group_id`}}",
       "vpc_id": "{{user `vpc_id`}}",
       "tags": {
-          "Name": "{{user `ami_name`}}",
+          "Name": "{{user `ami_name`}}-nat",
           "created": "{{timestamp}}",
           "docker_version": "{{ user `docker_version`}}",
           "source_ami_id": "{{ user `source_ami_id`}}",
@@ -127,19 +127,10 @@
     },
     {
       "type": "shell",
-      "remote_folder": "{{ user `remote_folder`}}",
-      "script": "{{template_dir}}/scripts/install-dnsmasq.sh",
-      "execute_command": "echo 'packer' | sudo -S env {{ .Vars }} {{ .Path }}",
+      "script": "{{template_dir}}/scripts/install_additional_repos.sh",
       "environment_vars": [
-        "DNSMASQ_CACHE_TTL={{user `dnsmasq_cache_ttl`}}"
+        "ADDITIONAL_YUM_REPOS={{user `additional_yum_repos`}}"
       ]
-    },
-    {
-        "type": "shell",
-        "script": "{{template_dir}}/scripts/install_additional_repos.sh",
-        "environment_vars": [
-          "ADDITIONAL_YUM_REPOS={{user `additional_yum_repos`}}"
-        ]
     },
     {
       "type": "shell",
