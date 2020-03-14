@@ -1,5 +1,5 @@
 PACKER_BINARY ?= packer
-PACKER_VARIABLES := aws_region ami_name binary_bucket_name binary_bucket_region kubernetes_version kubernetes_build_date docker_version cni_version cni_plugin_version source_ami_id source_ami_owners arch instance_type additional_yum_repos vpc_id subnet_id security_group_id ami_users
+PACKER_VARIABLES := aws_region ami_name binary_bucket_name binary_bucket_region kubernetes_version kubernetes_build_date docker_version cni_version cni_plugin_version source_ami_id source_ami_owners arch instance_type additional_yum_repos vpc_id subnet_id security_group_id ami_users dnsmasq_cache_ttl dnsmasq_enabled
 
 K8S_VERSION_PARTS := $(subst ., ,$(kubernetes_version))
 K8S_VERSION_MINOR := $(word 1,${K8S_VERSION_PARTS}).$(word 2,${K8S_VERSION_PARTS})
@@ -14,6 +14,13 @@ vpc_id ?= $(AWS_DEFAULT_VPC)
 subnet_id ?= $(AWS_DEFAULT_SUBNET)
 security_group_id ?= $(AWS_PACKER_SECURITY_GROUP_ID)
 ami_users ?= $(AWS_AMI_USERS)
+dnsmasq_enabled := $(DNSMASQ_ENABLED)
+# disable it by default
+dnsmasq_enabled ?= no
+dnsmasq_cache_ttl := $(DNSMASQ_CACHE_TTL)
+# set default dnsmasq cache
+dnsmasq_cache_ttl ?= 7200
+
 
 arch ?= x86_64
 ifeq ($(arch), arm64)

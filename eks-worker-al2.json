@@ -37,7 +37,8 @@
     "remote_folder": "",
     "launch_block_device_mappings_volume_size": "4",
     "additional_yum_repos": "",
-    "dnsmasq_cache_ttl": "7200"
+    "dnsmasq_enabled": "",
+    "dnsmasq_cache_ttl": ""
   },
 
   "builders": [
@@ -96,7 +97,8 @@
           "source_ami_id": "{{ user `source_ami_id`}}",
           "kubernetes": "{{ user `kubernetes_version`}}/{{ user `kubernetes_build_date` }}/bin/linux/{{ user `arch` }}",
           "cni_version": "{{ user `cni_version`}}",
-          "cni_plugin_version": "{{ user `cni_plugin_version`}}"
+          "cni_plugin_version": "{{ user `cni_plugin_version`}}",
+          "dnsmasq_enabled": "{{ user `dnsmasq_enabled`}}"
       },
       "ami_name": "{{user `ami_name`}}",
       "ami_description": "{{ user `ami_description` }}, (k8s: {{ user `kubernetes_version`}}, docker:{{ user `docker_version`}})",
@@ -121,6 +123,7 @@
       "script": "{{template_dir}}/scripts/install-dnsmasq.sh",
       "execute_command": "echo 'packer' | sudo -S env {{ .Vars }} {{ .Path }}",
       "environment_vars": [
+        "DNSMASQ_ENABLED={{user `dnsmasq_enabled`}}",
         "DNSMASQ_CACHE_TTL={{user `dnsmasq_cache_ttl`}}"
       ]
     },
