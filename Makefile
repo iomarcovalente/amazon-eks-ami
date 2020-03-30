@@ -19,7 +19,7 @@ dnsmasq_enabled := $(DNSMASQ_ENABLED)
 dnsmasq_enabled ?= no
 dnsmasq_cache_ttl := $(DNSMASQ_CACHE_TTL)
 # set default dnsmasq cache
-dnsmasq_cache_ttl ?= 7200
+dnsmasq_cache_ttl ?= 10
 
 
 arch ?= x86_64
