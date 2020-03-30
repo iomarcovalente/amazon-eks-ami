@@ -38,7 +38,8 @@
     "launch_block_device_mappings_volume_size": "4",
     "additional_yum_repos": "",
     "dnsmasq_enabled": "",
-    "dnsmasq_cache_ttl": ""
+    "dnsmasq_min_cache_ttl": "",
+    "dnsmasq_max_cache_ttl": ""
   },
 
   "builders": [
@@ -124,7 +125,8 @@
       "execute_command": "echo 'packer' | sudo -S env {{ .Vars }} {{ .Path }}",
       "environment_vars": [
         "DNSMASQ_ENABLED={{user `dnsmasq_enabled`}}",
-        "DNSMASQ_CACHE_TTL={{user `dnsmasq_cache_ttl`}}"
+        "DNSMASQ_MIN_CACHE_TTL={{user `dnsmasq_min_cache_ttl`}}",
+        "DNSMASQ_MAX_CACHE_TTL={{user `dnsmasq_max_cache_ttl`}}"
       ]
     },
     {

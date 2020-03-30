@@ -20,7 +20,8 @@ if [[ $DNSMASQ_ENABLED == "yes" ]];then
     resolv-file=/etc/resolv.dnsmasq
     cache-size=500
     neg-ttl=60
-    min-cache-ttl=${DNSMASQ_CACHE_TTL}
+    min-cache-ttl=${DNSMASQ_MIN_CACHE_TTL}
+    max-cache-ttl=${DNSMASQ_MAX_CACHE_TTL}
     domain-needed
     bogus-priv
 	EOF
