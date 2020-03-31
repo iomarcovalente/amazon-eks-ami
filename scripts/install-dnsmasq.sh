@@ -18,13 +18,15 @@ if [[ $DNSMASQ_ENABLED == "yes" ]];then
 
     # Name resolution options
     resolv-file=/etc/resolv.dnsmasq
-    cache-size=500
-    neg-ttl=60
-    min-cache-ttl=${DNSMASQ_MIN_CACHE_TTL}
     max-cache-ttl=${DNSMASQ_MAX_CACHE_TTL}
     domain-needed
     bogus-priv
 	EOF
+    if [[ -n $DNSMASQ_ADDITIONAL_PARAMS ]];then
+        for P in ${DNSMASQ_ADDITIONAL_PARAMS[@]};do
+            echo $P >> /etc/dnsmasq.conf;
+        done
+    cat /etc/dnsmasq.conf
     echo "nameserver 169.254.169.253" > /etc/resolv.dnsmasq
     systemctl restart dnsmasq.service
     systemctl enable dnsmasq.service
