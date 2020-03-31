@@ -23,9 +23,11 @@ if [[ $DNSMASQ_ENABLED == "yes" ]];then
     bogus-priv
 	EOF
     if [[ -n $DNSMASQ_ADDITIONAL_PARAMS ]];then
-        for P in ${DNSMASQ_ADDITIONAL_PARAMS[@]};do
+        PARAMS=(`echo $DNSMASQ_ADDITIONAL_PARAMS | tr ',' "\n"`)
+        for P in ${PARAMS[@]};do
             echo $P >> /etc/dnsmasq.conf;
         done
+    fi
     cat /etc/dnsmasq.conf
     echo "nameserver 169.254.169.253" > /etc/resolv.dnsmasq
     systemctl restart dnsmasq.service

@@ -18,7 +18,7 @@ dnsmasq_enabled := $(DNSMASQ_ENABLED)
 # disable it by default
 dnsmasq_enabled ?= no
 dnsmasq_additional_params := $(DNSMASQ_ADDITIONAL_PARAMS)
-DNSMASQ_ADDITIONAL_PARAMS := cache-size=500\ neg-ttl=60
+dnsmasq_additional_params := cache-size=500,neg-ttl=60
 dnsmasq_max_cache_ttl := $(DNSMASQ_MAX_CACHE_TTL)
 # set default dnsmasq max cache ttl
 dnsmasq_max_cache_ttl ?= 30
