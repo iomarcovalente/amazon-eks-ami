@@ -28,6 +28,7 @@ validate_env_set CNI_VERSION
 validate_env_set CNI_PLUGIN_VERSION
 validate_env_set KUBERNETES_VERSION
 validate_env_set KUBERNETES_BUILD_DATE
+validate_env_set PULL_CNI_FROM_GITHUB
 
 ################################################################################
 ### Machine Architecture #######################################################
@@ -110,6 +111,7 @@ sudo yum install -y yum-utils device-mapper-persistent-data lvm2
 INSTALL_DOCKER="${INSTALL_DOCKER:-true}"
 if [[ "$INSTALL_DOCKER" == "true" ]]; then
     sudo amazon-linux-extras enable docker
+    sudo groupadd -fog 1950 docker && sudo useradd --gid 1950 docker
     sudo yum install -y docker-${DOCKER_VERSION}*
     sudo usermod -aG docker $USER
 
@@ -132,6 +134,7 @@ fi
 # kubelet uses journald which has built-in rotation and capped size.
 # See man 5 journald.conf
 sudo mv $TEMPLATE_DIR/logrotate-kube-proxy /etc/logrotate.d/kube-proxy
+sudo mv $TEMPLATE_DIR/logrotate.conf /etc/logrotate.conf
 sudo chown root:root /etc/logrotate.d/kube-proxy
 sudo mkdir -p /var/log/journal
 
@@ -143,18 +146,6 @@ sudo mkdir -p /etc/kubernetes/manifests
 sudo mkdir -p /var/lib/kubernetes
 sudo mkdir -p /var/lib/kubelet
 sudo mkdir -p /opt/cni/bin
-
-wget https://github.com/containernetworking/cni/releases/download/${CNI_VERSION}/cni-${ARCH}-${CNI_VERSION}.tgz
-wget https://github.com/containernetworking/cni/releases/download/${CNI_VERSION}/cni-${ARCH}-${CNI_VERSION}.tgz.sha512
-sudo sha512sum -c cni-${ARCH}-${CNI_VERSION}.tgz.sha512
-sudo tar -xvf cni-${ARCH}-${CNI_VERSION}.tgz -C /opt/cni/bin
-rm cni-${ARCH}-${CNI_VERSION}.tgz cni-${ARCH}-${CNI_VERSION}.tgz.sha512
-
-wget https://github.com/containernetworking/plugins/releases/download/${CNI_PLUGIN_VERSION}/cni-plugins-${ARCH}-${CNI_PLUGIN_VERSION}.tgz
-wget https://github.com/containernetworking/plugins/releases/download/${CNI_PLUGIN_VERSION}/cni-plugins-${ARCH}-${CNI_PLUGIN_VERSION}.tgz.sha512
-sudo sha512sum -c cni-plugins-${ARCH}-${CNI_PLUGIN_VERSION}.tgz.sha512
-sudo tar -xvf cni-plugins-${ARCH}-${CNI_PLUGIN_VERSION}.tgz -C /opt/cni/bin
-rm cni-plugins-${ARCH}-${CNI_PLUGIN_VERSION}.tgz cni-plugins-${ARCH}-${CNI_PLUGIN_VERSION}.tgz.sha512
 
 echo "Downloading binaries from: s3://$BINARY_BUCKET_NAME"
 S3_DOMAIN="amazonaws.com"
@@ -182,6 +173,41 @@ for binary in ${BINARIES[*]} ; do
     sudo chmod +x $binary
     sudo mv $binary /usr/bin/
 done
+
+if [ "$PULL_CNI_FROM_GITHUB" = "true" ]; then
+    echo "Downloading CNI assets from Github"
+    wget https://github.com/containernetworking/cni/releases/download/${CNI_VERSION}/cni-${ARCH}-${CNI_VERSION}.tgz
+    wget https://github.com/containernetworking/cni/releases/download/${CNI_VERSION}/cni-${ARCH}-${CNI_VERSION}.tgz.sha512
+
+    wget https://github.com/containernetworking/plugins/releases/download/${CNI_PLUGIN_VERSION}/cni-plugins-${ARCH}-${CNI_PLUGIN_VERSION}.tgz
+    wget https://github.com/containernetworking/plugins/releases/download/${CNI_PLUGIN_VERSION}/cni-plugins-${ARCH}-${CNI_PLUGIN_VERSION}.tgz.sha512
+    sudo sha512sum -c cni-${ARCH}-${CNI_VERSION}.tgz.sha512
+    sudo sha512sum -c cni-plugins-${ARCH}-${CNI_PLUGIN_VERSION}.tgz.sha512
+    rm cni-${ARCH}-${CNI_VERSION}.tgz.sha512
+    rm cni-plugins-${ARCH}-${CNI_PLUGIN_VERSION}.tgz.sha512
+else
+    CNI_BINARIES=(
+            cni-${ARCH}-${CNI_VERSION}.tgz
+            cni-plugins-${ARCH}-${CNI_PLUGIN_VERSION}.tgz
+    )
+    for binary in ${CNI_BINARIES[*]} ; do
+        if [[ ! -z "$AWS_ACCESS_KEY_ID" ]]; then
+            echo "AWS cli present - using it to copy binaries from s3."
+            aws s3 cp --region $BINARY_BUCKET_REGION $S3_PATH/$binary .
+            aws s3 cp --region $BINARY_BUCKET_REGION $S3_PATH/$binary.sha256 .
+            sudo sha256sum -c $binary.sha256
+        else
+            echo "AWS cli missing - using wget to fetch cni binaries from s3. Note: This won't work for private bucket."
+            sudo wget $S3_URL_BASE/$binary
+            sudo wget $S3_URL_BASE/$binary.sha256
+        fi
+    done
+fi
+sudo tar -xvf cni-${ARCH}-${CNI_VERSION}.tgz -C /opt/cni/bin
+sudo tar -xvf cni-plugins-${ARCH}-${CNI_PLUGIN_VERSION}.tgz -C /opt/cni/bin
+rm cni-${ARCH}-${CNI_VERSION}.tgz
+rm cni-plugins-${ARCH}-${CNI_PLUGIN_VERSION}.tgz
+
 sudo rm *.sha256
 
 KUBERNETES_MINOR_VERSION=${KUBERNETES_VERSION%.*}
@@ -190,11 +216,7 @@ sudo mkdir -p /etc/kubernetes/kubelet
 sudo mkdir -p /etc/systemd/system/kubelet.service.d
 sudo mv $TEMPLATE_DIR/kubelet-kubeconfig /var/lib/kubelet/kubeconfig
 sudo chown root:root /var/lib/kubelet/kubeconfig
-if [ "$KUBERNETES_MINOR_VERSION" = "1.14" ]; then
-    sudo mv $TEMPLATE_DIR/1.14/kubelet.service /etc/systemd/system/kubelet.service
-else
-    sudo mv $TEMPLATE_DIR/kubelet.service /etc/systemd/system/kubelet.service
-fi
+sudo mv $TEMPLATE_DIR/kubelet.service /etc/systemd/system/kubelet.service
 sudo chown root:root /etc/systemd/system/kubelet.service
 sudo mv $TEMPLATE_DIR/kubelet-config.json /etc/kubernetes/kubelet/kubelet-config.json
 sudo chown root:root /etc/kubernetes/kubelet/kubelet-config.json
@@ -226,6 +248,16 @@ ARCH="$(uname -m)"
 EOF
 sudo mv /tmp/release /etc/eks/release
 sudo chown -R root:root /etc/eks
+
+################################################################################
+### Stuff required by "protectKernelDefaults=true" #############################
+################################################################################
+
+cat <<EOF | sudo tee -a /etc/sysctl.d/99-amazon.conf
+vm.overcommit_memory=1
+kernel.panic=10
+kernel.panic_on_oops=1
+EOF
 
 ################################################################################
 ### Cleanup ####################################################################
