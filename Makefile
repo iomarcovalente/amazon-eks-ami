@@ -1,5 +1,5 @@
 PACKER_BINARY ?= packer
-PACKER_VARIABLES := aws_region ami_name binary_bucket_name binary_bucket_region kubernetes_version kubernetes_build_date docker_version cni_version cni_plugin_version source_ami_id source_ami_owners arch instance_type additional_yum_repos vpc_id subnet_id security_group_id ami_users dnsmasq_additional_params dnsmasq_max_cache_ttl dnsmasq_enabled pull_cni_from_github
+PACKER_VARIABLES := aws_region ami_name binary_bucket_name binary_bucket_region kubernetes_version kubernetes_build_date docker_version cni_plugin_version source_ami_id source_ami_owners arch instance_type security_group_id additional_yum_repos pull_cni_from_github vpc_id subnet_id security_group_id ami_users
 
 K8S_VERSION_PARTS := $(subst ., ,$(kubernetes_version))
 K8S_VERSION_MINOR := $(word 1,${K8S_VERSION_PARTS}).$(word 2,${K8S_VERSION_PARTS})
@@ -14,15 +14,6 @@ vpc_id ?= $(AWS_DEFAULT_VPC)
 subnet_id ?= $(AWS_DEFAULT_SUBNET)
 security_group_id ?= $(AWS_PACKER_SECURITY_GROUP_ID)
 ami_users ?= $(AWS_AMI_USERS)
-dnsmasq_enabled := $(DNSMASQ_ENABLED)
-# disable it by default
-dnsmasq_enabled ?= no
-dnsmasq_additional_params := $(DNSMASQ_ADDITIONAL_PARAMS)
-dnsmasq_additional_params ?= cache-size=500,neg-ttl=60
-dnsmasq_max_cache_ttl := $(DNSMASQ_MAX_CACHE_TTL)
-# set default dnsmasq max cache ttl
-dnsmasq_max_cache_ttl ?= 30
-
 
 arch ?= x86_64
 ifeq ($(arch), arm64)

@@ -16,8 +16,7 @@
     "kubernetes_version": null,
     "kubernetes_build_date": null,
     "docker_version": "19.03.6ce-4.amzn2",
-    "cni_version": "v0.6.0",
-    "cni_plugin_version": "v0.7.5",
+    "cni_plugin_version": "v0.8.6",
     "pull_cni_from_github": "true",
 
     "source_ami_id": "",
@@ -37,10 +36,7 @@
     "spot_price": "auto",
     "remote_folder": "",
     "launch_block_device_mappings_volume_size": "4",
-    "additional_yum_repos": "",
-    "dnsmasq_enabled": "",
-    "dnsmasq_max_cache_ttl": "",
-    "dnsmasq_additional_params": ""
+    "additional_yum_repos": ""
   },
 
   "builders": [
@@ -98,9 +94,7 @@
           "docker_version": "{{ user `docker_version`}}",
           "source_ami_id": "{{ user `source_ami_id`}}",
           "kubernetes": "{{ user `kubernetes_version`}}/{{ user `kubernetes_build_date` }}/bin/linux/{{ user `arch` }}",
-          "cni_version": "{{ user `cni_version`}}",
-          "cni_plugin_version": "{{ user `cni_plugin_version`}}",
-          "dnsmasq_enabled": "{{ user `dnsmasq_enabled`}}"
+          "cni_plugin_version": "{{ user `cni_plugin_version`}}"
       },
       "ami_name": "{{user `ami_name`}}",
       "ami_description": "{{ user `ami_description` }}, (k8s: {{ user `kubernetes_version`}}, docker:{{ user `docker_version`}})",
@@ -137,17 +131,6 @@
     {
       "type": "shell",
       "remote_folder": "{{ user `remote_folder`}}",
-      "script": "{{template_dir}}/scripts/install-dnsmasq.sh",
-      "execute_command": "echo 'packer' | sudo -S env {{ .Vars }} {{ .Path }}",
-      "environment_vars": [
-        "DNSMASQ_ENABLED={{user `dnsmasq_enabled`}}",
-        "DNSMASQ_MAX_CACHE_TTL={{user `dnsmasq_max_cache_ttl`}}",
-        "DNSMASQ_ADDITIONAL_PARAMS={{user `dnsmasq_additional_params`}}"
-      ]
-    },
-    {
-      "type": "shell",
-      "remote_folder": "{{ user `remote_folder`}}",
       "script": "{{template_dir}}/scripts/install_additional_repos.sh",
       "environment_vars": [
         "ADDITIONAL_YUM_REPOS={{user `additional_yum_repos`}}"
@@ -163,7 +146,6 @@
         "BINARY_BUCKET_NAME={{user `binary_bucket_name`}}",
         "BINARY_BUCKET_REGION={{user `binary_bucket_region`}}",
         "DOCKER_VERSION={{user `docker_version`}}",
-        "CNI_VERSION={{user `cni_version`}}",
         "CNI_PLUGIN_VERSION={{user `cni_plugin_version`}}",
         "PULL_CNI_FROM_GITHUB={{user `pull_cni_from_github`}}",
         "AWS_ACCESS_KEY_ID={{user `aws_access_key_id`}}",
