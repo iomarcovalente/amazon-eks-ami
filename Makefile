@@ -4,11 +4,9 @@ PACKER_VARIABLES := aws_region ami_name binary_bucket_name binary_bucket_region 
 K8S_VERSION_PARTS := $(subst ., ,$(kubernetes_version))
 K8S_VERSION_MINOR := $(word 1,${K8S_VERSION_PARTS}).$(word 2,${K8S_VERSION_PARTS})
 
-NAT_BUILD := $(NAT_BUILD)
-
 aws_region ?= $(AWS_DEFAULT_REGION)
 binary_bucket_region ?= $(AWS_DEFAULT_REGION)
-ami_name ?= amazon-eks-node-$(K8S_VERSION_MINOR)-v$(shell date +'%Y%m%d%H%M')
+ami_name ?= amazon-eks-node-$(K8S_VERSION_MINOR)-v$(shell date +'%Y%m%d')
 
 vpc_id ?= $(AWS_DEFAULT_VPC)
 subnet_id ?= $(AWS_DEFAULT_SUBNET)
@@ -35,23 +33,17 @@ T_GREEN := \e[0;32m
 T_YELLOW := \e[0;33m
 T_RESET := \e[0m
 
+.PHONY: all
+all: 1.14 1.15 1.16 1.17
+
 .PHONY: validate
 validate:
-ifeq ($(NAT_BUILD),ON)
-	$(PACKER_BINARY) validate $(foreach packerVar,$(PACKER_VARIABLES), $(if $($(packerVar)),--var $(packerVar)='$($(packerVar))',)) eks-worker-al2-nat.json
-else
 	$(PACKER_BINARY) validate $(foreach packerVar,$(PACKER_VARIABLES), $(if $($(packerVar)),--var $(packerVar)='$($(packerVar))',)) eks-worker-al2.json
-endif
 
 .PHONY: k8s
 k8s: validate
-ifeq ($(NAT_BUILD),ON)
-	@echo "$(T_GREEN)Building AMI for NAT-build version $(T_YELLOW)$(kubernetes_version)$(T_GREEN) on $(T_YELLOW)$(arch)$(T_RESET)"
-	$(PACKER_BINARY) build $(foreach packerVar,$(PACKER_VARIABLES), $(if $($(packerVar)),--var $(packerVar)='$($(packerVar))',)) eks-worker-al2-nat.json
-else
 	@echo "$(T_GREEN)Building AMI for version $(T_YELLOW)$(kubernetes_version)$(T_GREEN) on $(T_YELLOW)$(arch)$(T_RESET)"
 	$(PACKER_BINARY) build $(foreach packerVar,$(PACKER_VARIABLES), $(if $($(packerVar)),--var $(packerVar)='$($(packerVar))',)) eks-worker-al2.json
-endif
 
 # Build dates and versions taken from https://docs.aws.amazon.com/eks/latest/userguide/install-kubectl.html
 
